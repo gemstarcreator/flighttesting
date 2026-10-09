@@ -21,7 +21,12 @@ export class Game {
   constructor(canvas, hudCanvas) {
     this.settings = { quality: 'medium', volume: 0.6 };
     try { Object.assign(this.settings, JSON.parse(localStorage.getItem('skyfront.settings') || '{}')); } catch (e) { /* ignore */ }
-    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, logarithmicDepthBuffer: true, powerPreference: 'high-performance' });
+    try {
+      this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, logarithmicDepthBuffer: true, powerPreference: 'high-performance' });
+    } catch (e) {
+      // some GPUs/drivers refuse the high-performance or antialiased context; retry with the plainest settings
+      this.renderer = new THREE.WebGLRenderer({ canvas, antialias: false, logarithmicDepthBuffer: true, powerPreference: 'default' });
+    }
     this.applyQuality();
     this.renderer.setSize(innerWidth, innerHeight);
     this.scene = new THREE.Scene();
